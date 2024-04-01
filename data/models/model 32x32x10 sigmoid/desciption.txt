@@ -1,0 +1,11 @@
+
+Avg Cost: 0.003133, Correct: %100.00
+
+model is 32x32x10
+
+Using :
+main act sigmoid
+out act softmax
+loss crossentropy
+
+it was trained using 0.1 step size, with a 1/2 decay at loss < 0.11
