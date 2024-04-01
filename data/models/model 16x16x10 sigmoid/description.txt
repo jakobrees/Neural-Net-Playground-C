@@ -1,0 +1,10 @@
+Accuracy: %96.88
+Avg Loss: 0.102380
+
+this model is 16 x 16 x 10
+Using :
+main act sigmoid
+out act softmax
+loss crossentropy
+
+it was trained using 0.1 step size, with a 1/2 decay at loss < 0.15
