@@ -1,0 +1,10 @@
+Accuracy: %96.48
+Avg Loss: 0.116721
+
+this model is 16 x 16 x 10
+Using :
+main act tanh
+out act softmax
+loss crossentropy
+
+it was trained using 0.1 step size, with a 1/2 decay at loss < 0.15
