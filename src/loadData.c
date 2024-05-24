@@ -2,9 +2,9 @@
 
 
 /**
- * This fucntion changes based on the architectuer that the program runs on. 
- * The MNIST data set is in high-endian format, and must be converted to be
- * read in low endian proccessors.
+ * This function changes based on the architecture that the program runs on. 
+ * The MNIST data set is in high-endian format and must be converted to be
+ * read in low-endian processors.
 */
 int32_t map_int32(int32_t in) {
     #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ 
@@ -22,7 +22,7 @@ int32_t map_int32(int32_t in) {
 
 /**
  * This function reads in the MNIST label data, specifically fitted 
- * for data from "http://yann.lecun.com/exdb/mnist/". Exact format 
+ * for data from "http://yann.lecun.com/exdb/mnist/". The exact format 
  * may be found there.
 */
 void load_all_labels(LabelDataPtr* lPtr, FILE *file) {
@@ -69,7 +69,7 @@ void load_all_labels(LabelDataPtr* lPtr, FILE *file) {
 
 /**
  * This function reads in the MNIST image data, specifically fitted 
- * for data from "http://yann.lecun.com/exdb/mnist/". Exact format 
+ * for data from "http://yann.lecun.com/exdb/mnist/". The exact format 
  * may be found there.
 */
 void load_all_images(ImageDataPtr* iPtr, FILE *file) {
@@ -137,7 +137,7 @@ void load_all_images(ImageDataPtr* iPtr, FILE *file) {
 /**
  * This stores a neural net in a custom format for the "neuralNet.c"
  * file included in this folder. It will not exit, because it may be
- * backing up a net that is currently training.
+ * backing up a net currently training.
 */
 void store_nn(NeuralNetPtr nnPtr, FILE* file) {
 
@@ -160,9 +160,11 @@ void store_nn(NeuralNetPtr nnPtr, FILE* file) {
     for (int l = 0; l < nnPtr->size; l++) {             
         for (int r = 0; r < nnPtr->layer_size[l]; r++) {
 
-            if (l == 0 && nnPtr->input_num != fwrite(nnPtr->weights[l][r], sizeof(float), nnPtr->input_num, file)) {
-                fprintf(stderr, "Error writing weights l = 0.");
-                return; // don't exit while training.
+            if (l == 0) {
+                if (nnPtr->input_num != fwrite(nnPtr->weights[l][r], sizeof(float), nnPtr->input_num, file)) {
+                    fprintf(stderr, "Error writing weights l = 0.");
+                    return; // don't exit while training.
+                }
             
             } else if (nnPtr->layer_size[l-1] != fwrite(nnPtr->weights[l][r], sizeof(float), nnPtr->layer_size[l-1], file)) {
                 fprintf(stderr, "Error writing weights l != 0.");
@@ -184,7 +186,7 @@ void store_nn(NeuralNetPtr nnPtr, FILE* file) {
 
 /**
  * This reads in a neural net in a custom format for the "neuralNet.c"
- * file included in this folder.
+ * file included in this folder. Does not require alloc_nn, only valid pointer.
 */
 void load_nn(NeuralNetPtr nnPtr, FILE * file) {
 
@@ -197,11 +199,18 @@ void load_nn(NeuralNetPtr nnPtr, FILE * file) {
         fprintf(stderr, "Error reading size.");
         exit(1);
     }
+    nnPtr->layer_size = (int *) malloc(nnPtr->size * sizeof(int));
+    if (nnPtr->layer_size == NULL) {
+        fprintf(stderr, "Error allocating space for layer_size.");
+        exit(1);
+    }
     if (nnPtr->size != fread(nnPtr->layer_size, sizeof(int), nnPtr->size, file)) {
         fprintf(stderr, "Error reading layer_size.");
         exit(1);
     }
-    
+
+    // space for weight and biases matricies/vectors
+    alloc_nn(nnPtr);
     
     // weight matricies
     for (int l = 0; l < nnPtr->size; l++) {
